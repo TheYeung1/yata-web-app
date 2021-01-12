@@ -5,8 +5,13 @@ export function setAuthToken(token) {
   jwt = token;
 }
 
+export async function CreateItem(listID, content) {
+  const request = { ListID: listID, ItemID: uuid(), Content: content };
+  return call("/lists/" + listID + "/items", "PUT", request);
+}
+
 export async function GetItems(listID) {
-  return call("/lists/" + listID + "/items", "GET");
+  return call("/lists/" + listID + "/items", "GET", null);
 }
 
 export async function CreateList(title) {

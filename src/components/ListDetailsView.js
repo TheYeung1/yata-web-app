@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { DescribeList, GetItems } from "../YataClient";
+import CreateListItemForm from "./CreateListItemFormWithReduce";
 
 /**
  * ListDetailsView is the view which shows the details for a list and all its items
@@ -66,19 +67,34 @@ function ListDetailsView() {
 
   let content;
   if (itemsState.loading || listState.loading) {
-    content = <div>Loading...</div>;
+    content = <div className="content">Loading...</div>;
   } else {
+    const onNewItem = (itemId, content) => {
+      setItemsState({
+        ...itemsState,
+        items: [
+          { ListID: id, ItemID: itemId, Content: content },
+          ...itemsState.items,
+        ],
+      });
+    };
+
     content = (
-      <div>
+      <div className="content">
         <ListDetails list={listState.details} loading={listState.loading} />
-        <ListItems items={itemsState.items} loading={itemsState.loading} />
+        <ListItems
+          listId={id}
+          items={itemsState.items}
+          loading={itemsState.loading}
+          onNewItem={onNewItem}
+        />
       </div>
     );
   }
 
   return (
-    <section class="section">
-      <div class="container">{content}</div>
+    <section className="section">
+      <div className="container">{content}</div>
     </section>
   );
 }
@@ -99,16 +115,18 @@ function ListDetails(props) {
 }
 
 function ListItems(props) {
-  let content;
-  if (props.items.length === 0) {
-    content = <div>There are no items!</div>;
-  } else {
-    content = props.items.map((item) => (
-      <li key={item.ItemID}>{item.Content}</li>
-    ));
-  }
+  const content = props.items.map((item) => (
+    <li key={item.ItemID}>{item.Content}</li>
+  ));
 
-  return <ul>{content}</ul>;
+  return (
+    <ul>
+      <li>
+        <CreateListItemForm listId={props.listId} onSuccess={props.onNewItem} />
+      </li>
+      {content}
+    </ul>
+  );
 }
 
 export default ListDetailsView;
